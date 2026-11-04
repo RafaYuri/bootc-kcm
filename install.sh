@@ -191,6 +191,52 @@ TARGET_ROOT="${DESTDIR:-/}"
 echo "📂 [Bootc KCM] Instalando arquivos em ${TARGET_ROOT}..."
 run_priv cp -rv "${STAGING_DIR}/"* "$TARGET_ROOT"
 
+# Garante que os arquivos .bashrc (em /etc/skel e do usuário atual, se aplicável)
+# carreguem /etc/bashrc (e consequentemente /etc/profile.d/bootc-notify.sh)
+# e remove referências legadas a /usr/local/bin/bootc-notify.sh
+ensure_bashrc_sources_etc() {
+    local bashrc_file="$1"
+    local use_priv="${2:-0}"
+    [[ -f "$bashrc_file" ]] || return 0
+
+    # Remove chamada legada acoplada (/usr/local/bin/bootc-notify.sh)
+    if grep -q '/usr/local/bin/bootc-notify.sh' "$bashrc_file" 2>/dev/null; then
+        if [[ "$use_priv" -eq 1 ]]; then
+            run_priv sed -i '/# Notificação de atualização pendente do bootc/d' "$bashrc_file"
+            run_priv sed -i '\|/usr/local/bin/bootc-notify\.sh|d' "$bashrc_file"
+        else
+            sed -i '/# Notificação de atualização pendente do bootc/d' "$bashrc_file"
+            sed -i '\|/usr/local/bin/bootc-notify\.sh|d' "$bashrc_file"
+        fi
+    fi
+
+    # Injeta carregamento de /etc/bashrc no topo caso não exista (ex.: templates do Oh My Bash)
+    if ! grep -Eq '(\.|source)[[:space:]]+/etc/bashrc' "$bashrc_file" 2>/dev/null; then
+        local tmp_rc
+        tmp_rc="$(mktemp)"
+        cat <<'EOF' > "$tmp_rc"
+# Source global definitions (carrega /etc/bashrc e /etc/profile.d/*.sh, incluindo bootc-notify)
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
+
+EOF
+        cat "$bashrc_file" >> "$tmp_rc"
+        if [[ "$use_priv" -eq 1 ]]; then
+            run_priv cp "$tmp_rc" "$bashrc_file"
+            run_priv chmod 0644 "$bashrc_file"
+        else
+            cp "$tmp_rc" "$bashrc_file"
+        fi
+        rm -f "$tmp_rc"
+    fi
+}
+
+ensure_bashrc_sources_etc "${TARGET_ROOT%/}/etc/skel/.bashrc" 1
+if [[ -z "$DESTDIR" && -n "${HOME:-}" && -f "${HOME}/.bashrc" ]]; then
+    ensure_bashrc_sources_etc "${HOME}/.bashrc" 0
+fi
+
 # Salva manifesto de arquivos instalados para desinstalação limpa
 MANIFEST_FILE="${SCRIPT_DIR}/.installed_files.manifest"
 (cd "$STAGING_DIR" && find . -type f -o -type l | sed 's|^\./|/|') > "$MANIFEST_FILE"

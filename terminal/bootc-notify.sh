@@ -37,8 +37,10 @@ case "${1:-}" in
         ;;
     --sync-marker)
         if command -v bootc >/dev/null 2>&1; then
-            if bootc status --format=json 2>/dev/null | grep -Eq '"staged"|rollbackQueued":true'; then
-                touch "$REBOOT_MARKER" 2>/dev/null || true
+            if bootc status --format=json 2>/dev/null | tr -d ' \n\r\t' | grep -Eq '"staged":\{|"rollbackQueued":true'; then
+                printf 'bootc\n' > "$REBOOT_MARKER" 2>/dev/null || true
+            elif [ -f "$REBOOT_MARKER" ] && grep -q '^bootc' "$REBOOT_MARKER" 2>/dev/null; then
+                rm -f "$REBOOT_MARKER" 2>/dev/null || true
             fi
         fi
         return 0 2>/dev/null || exit 0
