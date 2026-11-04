@@ -1,0 +1,9 @@
+build/
+.cache/
+*.o
+*.so
+.installed_files.manifest
+.vscode/
+.idea/
+*~
+*.swp

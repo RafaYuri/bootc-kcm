@@ -1,0 +1,9 @@
+[Unit]
+Description=Bootc - Monitoramento Daemonless de Reboot Pendente (/run/reboot-required)
+Documentation=https://github.com/containers/bootc
+
+[Path]
+PathExists=/run/reboot-required
+
+[Install]
+WantedBy=graphical-session.target default.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Bootc - Notificação Gráfica de Atualização Staged
+Documentation=https://github.com/containers/bootc
+ConditionPathExists=/run/reboot-required
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bootc-desktop-notify.sh
+RemainAfterExit=yes

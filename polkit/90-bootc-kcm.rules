@@ -1,0 +1,21 @@
+// =============================================================================
+// Regras Polkit para o Módulo Bootc KCM
+// - Leitura de status (.status) e verificação de atualizações (.check):
+//   Permitidas sem pedir senha para qualquer usuário humano em sessão local ativa.
+// - Download/stage de atualização (.upgrade):
+//   Permitido sem senha para membros dos grupos administrativos ('wheel' ou 'sudo')
+//   em sessão local ativa (mesmo comportamento padrão do Discover/PackageKit).
+// =============================================================================
+polkit.addRule(function(action, subject) {
+    if ((action.id == "org.containers.bootc.status" ||
+         action.id == "org.containers.bootc.check") &&
+        subject.active && subject.local) {
+        return polkit.Result.YES;
+    }
+
+    if (action.id == "org.containers.bootc.upgrade" &&
+        subject.active && subject.local &&
+        (subject.isInGroup("wheel") || subject.isInGroup("sudo"))) {
+        return polkit.Result.YES;
+    }
+});
