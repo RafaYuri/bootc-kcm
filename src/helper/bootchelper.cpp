@@ -219,7 +219,7 @@ ActionReply BootcHelper::upgrade(const QVariantMap &args)
             QStringLiteral("--unit=") + unitName,
             QStringLiteral("--description=Bootc KCM System Update"),
             QStringLiteral("--property=Type=exec"),
-            QStringLiteral("--property=ExecStartPost=-/usr/bin/bootc-notify --sync-marker"),
+            QStringLiteral("--property=ExecStopPost=-/usr/bin/bootc-notify --sync-marker"),
             QStringLiteral("/usr/bin/bootc"),
             QStringLiteral("upgrade")
         });
