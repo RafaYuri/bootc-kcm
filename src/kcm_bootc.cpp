@@ -295,7 +295,7 @@ void KcmBootc::executeHelperAction(const QString &actionName,
     KAuth::Action action(actionName);
     action.setHelperId(QStringLiteral("org.containers.bootc"));
     action.setArguments(args);
-    action.setTimeout(600000); // 10 minutos para downloads de camadas grandes
+    action.setTimeout(actionName.endsWith(QLatin1String(".upgrade")) ? 3600000 : 600000);
 
     KAuth::ExecuteJob *job = action.execute();
 
@@ -345,6 +345,9 @@ void KcmBootc::executeHelperAction(const QString &actionName,
             m_infoMessage = m_autoUpdatesEnabled
                                 ? i18n("Atualizações automáticas em segundo plano ativadas.")
                                 : i18n("Atualizações automáticas em segundo plano desativadas.");
+        } else if (actionName.endsWith(QLatin1String(".status"))
+                   && replyData.value(QStringLiteral("upgradeInProgress")).toBool()) {
+            QMetaObject::invokeMethod(this, &KcmBootc::performUpgrade, Qt::QueuedConnection);
         }
 
         Q_EMIT stateChanged();
@@ -356,7 +359,7 @@ void KcmBootc::executeHelperAction(const QString &actionName,
 void KcmBootc::refreshStatus()
 {
     executeHelperAction(QStringLiteral("org.containers.bootc.status"),
-                        i18n("Lendo status da imagem bootc..."));
+                        i18n("Verificando status do sistema..."));
 }
 
 void KcmBootc::checkForUpdates()
@@ -364,7 +367,7 @@ void KcmBootc::checkForUpdates()
     m_logOutput.clear();
     Q_EMIT logChanged();
     executeHelperAction(QStringLiteral("org.containers.bootc.check"),
-                        i18n("Verificando atualizações no registro remoto..."));
+                        i18n("Verificando atualizações disponíveis..."));
 }
 
 void KcmBootc::performUpgrade()
@@ -372,7 +375,7 @@ void KcmBootc::performUpgrade()
     m_logOutput.clear();
     Q_EMIT logChanged();
     executeHelperAction(QStringLiteral("org.containers.bootc.upgrade"),
-                        i18n("Baixando e preparando nova imagem do sistema (bootc upgrade)..."));
+                        i18n("Baixando e preparando nova atualização do sistema..."));
 }
 
 void KcmBootc::performRollback()

@@ -23,5 +23,7 @@ public Q_SLOTS:
 private:
     QVariantMap collectStatusPayload(QString *errorOut = nullptr) const;
     bool isAutoTimerEnabled() const;
+    bool isUnitRunning(const QString &unitName) const;
+    QString activeUpgradeUnit() const;
     void syncRebootRequiredMarker(const QByteArray &statusJson) const;
 };

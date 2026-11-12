@@ -137,7 +137,7 @@ build_in_podman() {
     local builder_img="quay.io/fedora/fedora:latest"
 
     echo "🐳 [Bootc KCM] Compilando em container Podman efêmero (${builder_img})..."
-    rm -rf "$STAGING_DIR"
+    rm -rf "$BUILD_DIR"
     mkdir -p "$BUILD_DIR" "$STAGING_DIR"
 
     podman run --rm \

@@ -66,7 +66,7 @@ KCM.SimpleKCM {
                   ? i18n("Reversão (Rollback) agendada para o próximo boot. Reinicie o sistema para iniciar na imagem anterior.")
                   : (kcm.hasStaged
                      ? i18n("Nova atualização preparada (Staged: %1). Reinicie o sistema para concluir a aplicação da imagem.", kcm.stagedVersion)
-                     : i18n("Atualização pendente detectada (/run/reboot-required). Reinicie o sistema para aplicar as alterações."))
+                     : i18n("Atualização pendente detectada. Reinicie o sistema para aplicar as alterações."))
             actions: [
                 Kirigami.Action {
                     text: i18n("Reiniciar Agora")
@@ -143,14 +143,6 @@ KCM.SimpleKCM {
                         Layout.fillWidth: true
                         font.bold: true
                         text: kcm.busyMessage
-                        wrapMode: Text.WordWrap
-                    }
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        opacity: 0.75
-                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                        text: i18n("Executando via KAuth sob demanda (nenhum daemon residente em segundo plano).")
                         wrapMode: Text.WordWrap
                     }
                 }
@@ -463,7 +455,7 @@ KCM.SimpleKCM {
                             opacity: 0.75
                             wrapMode: Text.WordWrap
                             font.pointSize: Kirigami.Theme.smallFont.pointSize
-                            text: i18n("Controla o timer nativo 'bootc-fetch-apply-updates.timer'. Com o Bootc KCM, as atualizações são apenas preparadas (staged) sem reiniciar o sistema automaticamente.")
+                            text: i18n("Baixa e prepara novas atualizações automaticamente em segundo plano, sem reiniciar o sistema sem sua confirmação.")
                         }
                     }
 
@@ -486,7 +478,7 @@ KCM.SimpleKCM {
                     QQC2.Button {
                         flat: true
                         icon.name: root.showLogs ? "arrow-down" : "arrow-right"
-                        text: root.showLogs ? i18n("Ocultar Saída do Comando (bootc)") : i18n("Mostrar Saída do Comando (bootc)")
+                        text: root.showLogs ? i18n("Ocultar Detalhes Técnicos") : i18n("Mostrar Detalhes Técnicos")
                         onClicked: root.showLogs = !root.showLogs
                     }
 
